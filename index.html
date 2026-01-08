@@ -21,6 +21,17 @@
       defaultPrivacyLevel: 'mask-user-input',
       version: '1.0.0'
     });
+
+    window.DD_RUM && window.DD_RUM.setUser({
+    id: '1234',
+    name: 'John Doe',
+    email: 'john@doe.com',
+    plan: 'premium',
+    ...
+})
+
+    window.DD_RUM && window.DD_RUM.getUser()
+
     window.DD_RUM && window.DD_RUM.startSessionReplayRecording();
   </script>
 
