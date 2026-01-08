@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Datadog RUM Demo - Login</title>
+  <title>Datadog RUM Demo - Home</title>
 
   <!-- Datadog RUM -->
   <script src="https://www.datadoghq-browser-agent.com/us1/v6/datadog-rum.js" crossorigin="anonymous"></script>
   <script>
+    // Initialize RUM
     window.DD_RUM && window.DD_RUM.init({
       clientToken: 'pub3a9242d3cff288df4f25082fefa8e4e7',
       applicationId: '93b458ba-4215-49d4-89cd-41f946ce2c1d',
@@ -22,23 +23,29 @@
       version: '1.0.0'
     });
 
-    // Start session replay recording immediately
+    // Start session replay recording
     window.DD_RUM && window.DD_RUM.startSessionReplayRecording();
+
+    // Restore user if already logged in
+    const savedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    if (savedUser) {
+      window.DD_RUM.setUser(savedUser);
+      console.log("RUM user restored:", savedUser);
+    }
   </script>
 
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    .login-container { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 2rem; border-radius: 8px; }
-    input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
-    button { padding: 0.5rem 1rem; }
-  </style>
 </head>
 <body>
 
-  <div class="login-container">
-    <h2>Login for RUM Test</h2>
+  <header class="header">
+    <h1>Datadog RUM Demo</h1>
+    <p>Interactive test site for RUM</p>
+  </header>
 
+  <!-- Login Section -->
+  <section class="card">
+    <h2>Login</h2>
     <input type="text" id="username" placeholder="Enter username" />
     <input type="email" id="email" placeholder="Enter email" />
     <select id="plan">
@@ -46,38 +53,48 @@
       <option value="premium">Premium</option>
       <option value="enterprise">Enterprise</option>
     </select>
-    <br/>
     <button onclick="loginUser()">Login</button>
+    <p id="login-status"></p>
+  </section>
 
-    <p id="status"></p>
-  </div>
+  <!-- Existing interactive sections -->
+  <section class="card">
+    <h2>Primary Action</h2>
+    <button class="btn-primary" onclick="handleClick()">Click Me</button>
+    <p id="click-result"></p>
+  </section>
 
   <script>
     function loginUser() {
-      const username = document.getElementById("username").value;
-      const email = document.getElementById("email").value;
-      const plan = document.getElementById("plan").value;
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const plan = document.getElementById('plan').value;
 
       if (!username || !email) {
-        alert("Please fill out all fields");
+        alert("Please fill all fields");
         return;
       }
 
-      // Simulate a user ID (in real app, use backend auth ID)
+      // Generate user ID (simulate backend)
       const userId = 'user-' + Math.floor(Math.random() * 100000);
 
-      // Set user in Datadog RUM
-      window.DD_RUM && window.DD_RUM.setUser({
-        id: userId,
-        name: username,
-        email: email,
-        plan: plan
-      });
+      const user = { id: userId, name: username, email, plan };
 
-      document.getElementById("status").innerText = 
-        `User "${username}" logged in for RUM testing.`;
-      
-      console.log("RUM user set:", { id: userId, name: username, email, plan });
+      // Save for session
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+      // Identify user in RUM
+      window.DD_RUM.setUser(user);
+
+      document.getElementById('login-status').innerText =
+        `Logged in as ${username} — RUM tracking enabled.`;
+
+      console.log("RUM user set:", user);
+    }
+
+    // Example interactive function
+    function handleClick() {
+      document.getElementById("click-result").innerText = "Button clicked!";
     }
   </script>
 
